@@ -45,3 +45,5 @@ gcloud_credentials*.json
 *.log
 
 test_to_understand_code
+
+aideplus-e945b9f5d625.json
