@@ -19,6 +19,9 @@ build/
 players_raw.json
 players_historical_raw.json
 
+# Kaggle CSV dumps — too large for git, download from Kaggle
+data/kaggle/*.csv
+
 # IDE
 .vscode/
 .idea/
@@ -40,3 +43,5 @@ gcloud_credentials*.json
 
 # Logs
 *.log
+
+test_to_understand_code
