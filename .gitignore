@@ -47,3 +47,11 @@ gcloud_credentials*.json
 test_to_understand_code
 
 aideplus-e945b9f5d625.json
+
+.adk
+
+plan.md
+
+design.md
+
+.env.production

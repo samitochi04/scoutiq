@@ -1,0 +1,76 @@
+/* ===== SCOUTIQ DESIGN TOKENS ===== */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  /* Colors — Surfaces */
+  --color-bg-page: #ebebeb;
+  --color-bg-sidebar: #111118;
+  --color-bg-card: #ffffff;
+  --color-bg-icon-active: #1e1e2a;
+  --color-bg-icon-hover: #1a1a26;
+
+  /* Colors — Text */
+  --color-text-heading: #1a1a2e;
+  --color-text-accent: #4a6cf7;
+  --color-text-body: #5a5a72;
+  --color-text-placeholder: #bcbcd0;
+  --color-text-card: #1c1c2e;
+  --color-text-muted: #9090a8;
+
+  /* Colors — Interactive */
+  --color-btn-send: #9fa8f7;
+  --color-btn-send-hover: #7b87f5;
+  --color-btn-send-disabled: #d4d8fc;
+  --color-badge-alert: #e8414b;
+
+  /* Colors — Borders */
+  --color-border-card: #e8e8f0;
+  --color-border-input: #e4e4ee;
+  --color-border-chip: #dcdce8;
+  --color-toolbar-divider: #f0f0f8;
+
+  /* Colors — Special */
+  --color-credit-icon: #f5a623;
+  --color-confidence-high: #22c55e;
+  --color-confidence-medium: #f59e0b;
+  --color-confidence-low: #ef4444;
+
+  /* Typography */
+  --font-primary:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Border Radius */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 50%;
+
+  /* Shadows */
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-input-focus: 0 0 0 3px rgba(74, 108, 247, 0.12);
+  --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+  /* Layout */
+  --sidebar-width: 44px;
+  --content-max-width: 460px;
+  --bottom-nav-height: 56px;
+
+  /* Z-index */
+  --z-tooltip: 10;
+  --z-dropdown: 20;
+  --z-sidebar: 30;
+  --z-bottom-nav: 40;
+  --z-overlay: 50;
+}

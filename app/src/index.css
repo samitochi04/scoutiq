@@ -1,0 +1,66 @@
+/* Import design tokens */
+@import "./styles/tokens.css";
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-primary);
+  background: var(--color-bg-page);
+  color: var(--color-text-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+
+#root {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-primary);
+}
+
+p {
+  margin: 0;
+}
+button {
+  font-family: var(--font-primary);
+  cursor: pointer;
+}
+textarea {
+  font-family: var(--font-primary);
+}
+a {
+  color: var(--color-text-accent);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d0d0e0;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b0b0cc;
+}
