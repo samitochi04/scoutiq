@@ -19,15 +19,13 @@ Environment variables:
 """
 
 import os
-import sys
 import json
-import asyncio
 import logging
 import uuid
 from pathlib import Path
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -154,14 +152,6 @@ async def stream_agent_response(
             )
         except Exception as e:
             logger.debug(f"Session creation info: {e}")
-            try:
-                session = await session_service.get_session(
-                    app_name="scoutiq",
-                    user_id="frontend_user",
-                    session_id=session_id,
-                )
-            except Exception as e2:
-                logger.warning(f"Session management: {e2}")
 
         # Build message with mode prefix
         full_query = f"[Mode: {mode}]\n\n{query}" if mode != "Full Report" else query
