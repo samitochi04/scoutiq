@@ -6,11 +6,10 @@ WORKDIR /app
 # Copy entire app directory first
 COPY app/ .
 
-# Install dependencies
-RUN npm ci --verbose
+# Install dependencies (including devDependencies for build tools like Vite)
+RUN npm ci
 
 # Build for production
-ENV NODE_ENV=production
 RUN npm run build
 
 # Verify build succeeded
