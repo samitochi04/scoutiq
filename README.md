@@ -11,7 +11,7 @@ ScoutIQ is a multi-step AI scouting agent that *acts*, not just answers. Given a
 ### Links
 - Hackathon: https://rapid-agent.devpost.com
 - ScoutIQ MongoDB Atlas: https://cloud.mongodb.com/v2/6a1d7d2c514928562d58f94f#/overview
-- ScoutIQ GCP project: https://console.cloud.google.com/agent-platform/overview?project=scoutiq-498113
+- ScoutIQ GCP project: https://console.cloud.google.com/agent-platform/overview?project=aideplus
 
 ---
 

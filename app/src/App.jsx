@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import Sidebar from "./components/Sidebar";
 import QueryHome from "./components/QueryHome";
 import ChatView from "./components/ChatView";
+import About from "./components/About";
 import HistoryView from "./components/HistoryView";
 import MobileBottomNav from "./components/MobileBottomNav";
 import { useConversations } from "./hooks/useConversations";
@@ -128,6 +129,7 @@ export default function App() {
             onNewChat={handleNewChat}
           />
         )}
+        {view === "about" && <About onNewChat={handleNewChat} />}
         {view === "history" && (
           <HistoryView
             conversations={conversations}

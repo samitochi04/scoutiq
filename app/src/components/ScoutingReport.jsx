@@ -1,5 +1,6 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { marked } from "marked";
+import { generatePDF } from "../utils/pdfGenerator";
 import "./ScoutingReport.css";
 
 // Configure marked with safe settings
@@ -27,6 +28,7 @@ function ConfidenceBadge({ level }) {
 
 export default function ScoutingReport({ report, confidence, isStreaming }) {
   const containerRef = useRef(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const htmlContent = useMemo(() => {
     if (!report) return "";
@@ -39,6 +41,18 @@ export default function ScoutingReport({ report, confidence, isStreaming }) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [htmlContent, isStreaming]);
+
+  const handleDownloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      await generatePDF(report, confidence);
+    } catch (error) {
+      console.error("Failed to download PDF:", error);
+      alert("Failed to download PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (!report) return null;
 
@@ -62,7 +76,33 @@ export default function ScoutingReport({ report, confidence, isStreaming }) {
           </svg>
           <span className="report-title-label">Scouting Report</span>
         </div>
-        {confidence && !isStreaming && <ConfidenceBadge level={confidence} />}
+        <div className="report-header-right">
+          {!isStreaming && (
+            <button
+              className="download-pdf-btn"
+              onClick={handleDownloadPDF}
+              disabled={isDownloading}
+              aria-label="Download report as PDF"
+              title="Download report as PDF"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="download-icon"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              {isDownloading ? "Generating..." : "PDF"}
+            </button>
+          )}
+          {confidence && !isStreaming && <ConfidenceBadge level={confidence} />}
+        </div>
         {isStreaming && (
           <span className="streaming-badge">
             <span className="streaming-dot" />

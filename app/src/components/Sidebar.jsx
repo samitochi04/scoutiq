@@ -15,7 +15,7 @@ const ICONS = {
       <path d="M15 4V2m0 2v2m0-2h-2m2 0h2M3 15l9-9 6 6-9 9-6-6zm7-7 2 2" />
     </svg>
   ),
-  compare: (
+  about: (
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -89,9 +89,9 @@ export default function Sidebar({ activeView, onNavigate }) {
           onClick={() => onNavigate("home")}
         />
         <SidebarIconTile
-          icon="compare"
-          label="Compare"
-          onClick={() => onNavigate("home")}
+          icon="about"
+          label="about"
+          onClick={() => onNavigate("about")}
         />
         <SidebarIconTile
           icon="history"

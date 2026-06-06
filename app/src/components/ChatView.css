@@ -217,9 +217,14 @@
     box-shadow 150ms ease;
 }
 
-.chat-input-container:focus-within {
-  border-color: rgba(74, 108, 247, 0.4);
+/* .chat-input-container:focus-within {
+  border-color: rgba(255, 255, 255, 1);
   box-shadow: var(--shadow-input-focus);
+} */
+
+.chat-input-container:focus-within {
+  border-color: var(--color-border-input);
+  box-shadow: none;
 }
 
 .chat-textarea {
@@ -234,6 +239,15 @@
   color: var(--color-text-heading);
   caret-color: var(--color-text-accent);
   padding: 0;
+}
+
+/* Remove Blue Border Color */
+.query-textarea {
+  outline: none;
+}
+
+.query-textarea:focus {
+  outline: none;
 }
 
 .chat-textarea::placeholder {

@@ -20,22 +20,20 @@ export default function MobileBottomNav({ activeView, onNavigate }) {
       ),
     },
     {
-      id: "scout",
-      label: "Scout",
+      id: "about",
+      label: "about",
       center: true,
       icon: (
         <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          <polyline points="11 8 14 11 11 14" />
-        </svg>
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
       ),
     },
     {
@@ -63,9 +61,9 @@ export default function MobileBottomNav({ activeView, onNavigate }) {
         <button
           key={item.id}
           className={`mobile-nav-item${item.center ? " center" : ""}${activeView === item.id ? " active" : ""}`}
-          onClick={() => onNavigate(item.id === "scout" ? "home" : item.id)}
+          onClick={() => onNavigate(item.id === "about" ? "about" : item.id)}
           aria-label={item.label}
-          aria-current={activeView === item.id ? "page" : undefined}
+          aria-current={activeView === item.id ? "about" : undefined}
         >
           <span className="mobile-nav-icon">{item.icon}</span>
           <span className="mobile-nav-label">{item.label}</span>
