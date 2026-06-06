@@ -3,18 +3,23 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy entire app directory first
+# Verify node and npm
+RUN node --version && npm --version
+
+# Copy entire app directory
 COPY app/ .
 
-# Install dependencies (including devDependencies for build tools like Vite)
-RUN npm ci
+# Ensure package.json exists
+RUN test -f package.json || (echo "ERROR: package.json not found!" && exit 1)
 
-# Build for production
-RUN npm run build
+# Install dependencies
+RUN npm ci --prefer-offline --no-audit || npm ci
 
-# Verify build succeeded
-RUN test -d dist || (echo "❌ React build failed - dist/ not found" && exit 1)
-RUN ls -la dist/ || echo "Dist contents:"
+# Build React app
+RUN npm run build || (echo "ERROR: npm run build failed" && exit 1)
+
+# Verify dist folder exists
+RUN test -d dist || (echo "ERROR: dist folder not created!" && exit 1)
 
 # ── Runtime stage: Python API ────────────────────────────────────────────────
 FROM python:3.11-slim
