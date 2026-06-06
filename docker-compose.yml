@@ -1,10 +1,14 @@
 version: '3.8'
 
 services:
-  scoutiq:
+  # ── Backend API ───────────────────────────────────────────────
+  api:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: scoutiq-api
+    expose:
+      - "8000"
     environment:
       # ── MongoDB ───────────────────────────────────────────────
       MONGODB_CLUSTER_USERNAME: ${MONGODB_CLUSTER_USERNAME}
@@ -14,8 +18,6 @@ services:
       # ── Google Cloud ──────────────────────────────────────────
       GCP_PROJECT_ID: ${GCP_PROJECT_ID}
       GCP_REGION: ${GCP_REGION}
-      # For Coolify: set GCP_SERVICE_ACCOUNT_JSON (base64 encoded)
-      # For local dev: set GOOGLE_APPLICATION_CREDENTIALS (file path)
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
       GCP_SERVICE_ACCOUNT_JSON: ${GCP_SERVICE_ACCOUNT_JSON}
 
@@ -27,15 +29,33 @@ services:
       FOOTBALL_DATA_API_KEY: ${FOOTBALL_DATA_API_KEY}
 
       # ── Server ────────────────────────────────────────────────
-      PORT: 8080
+      PORT: 8000
 
-    # Mount .env file for local development (optional)
     env_file:
       - .env
-
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: ["CMD", "curl", "-f", "${VITE_API_URL}/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ── Frontend (React + Vite) ───────────────────────────────────
+  frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: scoutiq-frontend
+    expose:
+      - "3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
