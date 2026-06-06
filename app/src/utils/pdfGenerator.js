@@ -7,9 +7,35 @@ const ScoutIQLogoPath = new URL(
   import.meta.url,
 ).href;
 
+/**
+ * Scans upward from `targetEndY` to find a row of near-white pixels,
+ * so we never cut through a line of text.
+ */
+function findSafeCutPoint(canvas, startY, targetEndY) {
+  const ctx = canvas.getContext("2d");
+  // Search up to 80px above the target cut point
+  const searchFrom = Math.floor(targetEndY);
+  const searchTo = Math.max(startY + 1, searchFrom - 80);
+
+  for (let y = searchFrom; y >= searchTo; y--) {
+    const { data } = ctx.getImageData(0, y, canvas.width, 1);
+    let isWhiteRow = true;
+    for (let i = 0; i < data.length; i += 4) {
+      // Allow near-white (≥245 on all channels)
+      if (data[i] < 245 || data[i + 1] < 245 || data[i + 2] < 245) {
+        isWhiteRow = false;
+        break;
+      }
+    }
+    if (isWhiteRow) return y;
+  }
+
+  return targetEndY; // fallback: original cut point
+}
+
 export async function generatePDF(report, confidence) {
   try {
-    // Create a temporary container for rendering the PDF content
+    // ── Build the off-screen container ──────────────────────────────────────
     const container = document.createElement("div");
     container.style.position = "absolute";
     container.style.left = "-9999px";
@@ -21,7 +47,7 @@ export async function generatePDF(report, confidence) {
     container.style.color = "#1a1a2e";
     document.body.appendChild(container);
 
-    // Create header with logo
+    // Header
     const header = document.createElement("div");
     header.style.textAlign = "center";
     header.style.marginBottom = "30px";
@@ -30,8 +56,7 @@ export async function generatePDF(report, confidence) {
 
     const logo = document.createElement("img");
     logo.src = ScoutIQLogoPath;
-    logo.style.height = "50px";
-    logo.style.marginBottom = "15px";
+    logo.style.height = "70px";
     header.appendChild(logo);
 
     const title = document.createElement("h1");
@@ -50,7 +75,6 @@ export async function generatePDF(report, confidence) {
     subtitle.style.fontStyle = "italic";
     header.appendChild(subtitle);
 
-    // Add confidence badge
     if (confidence) {
       const confidenceDiv = document.createElement("div");
       confidenceDiv.style.marginTop = "15px";
@@ -69,15 +93,13 @@ export async function generatePDF(report, confidence) {
       badge.style.color = conf.color;
       badge.style.fontWeight = "bold";
       confidenceDiv.appendChild(badge);
-
       confidenceDiv.style.fontSize = "13px";
       confidenceDiv.style.color = "#5a5a72";
       header.appendChild(confidenceDiv);
     }
-
     container.appendChild(header);
 
-    // Add report description section
+    // Report overview section
     const descSection = document.createElement("div");
     descSection.style.marginBottom = "25px";
     const descTitle = document.createElement("h2");
@@ -95,11 +117,10 @@ export async function generatePDF(report, confidence) {
       "This comprehensive scouting report provides an in-depth analysis of player performance, skills, and potential. Prepared by ScoutIQ, an advanced AI-powered scouting platform designed to support professional recruitment and player evaluation decisions.";
     descContent.style.fontSize = "12px";
     descContent.style.color = "#5a5a72";
-    descContent.style.marginBottom = "0";
     descSection.appendChild(descContent);
     container.appendChild(descSection);
 
-    // Add report body
+    // Detailed analysis section
     const bodySection = document.createElement("div");
     bodySection.style.marginBottom = "20px";
     const bodyTitle = document.createElement("h2");
@@ -112,27 +133,20 @@ export async function generatePDF(report, confidence) {
     bodyTitle.style.paddingBottom = "8px";
     bodySection.appendChild(bodyTitle);
 
-    // Create a div for rendered markdown report
     const reportBody = document.createElement("div");
     reportBody.className = "pdf-report-body";
     reportBody.style.fontSize = "12px";
     reportBody.style.lineHeight = "1.8";
     reportBody.style.color = "#1c1c2e";
 
-    // Process report content and replace em dashes
-    let processedReport = report.replace(/—/g, " ");
-
-    // Parse markdown and convert to HTML
+    const processedReport = report.replace(/—/g, " ");
     const htmlContent = marked.parse(processedReport);
-    reportBody.innerHTML = htmlContent;
-
-    // Style the rendered HTML elements
-    const styleContent = `
+    reportBody.innerHTML = `
       <style>
         .pdf-report-body h1 { font-size: 16px; font-weight: bold; margin: 15px 0 8px 0; color: #1a1a2e; }
         .pdf-report-body h2 { font-size: 14px; font-weight: bold; margin: 12px 0 6px 0; color: #1a1a2e; }
         .pdf-report-body h3 { font-size: 12px; font-weight: bold; margin: 10px 0 5px 0; color: #1a1a2e; }
-        .pdf-report-body p { margin: 6px 0; color: #1c1c2e; font-size: 12px; }
+        .pdf-report-body p  { margin: 6px 0; color: #1c1c2e; font-size: 12px; }
         .pdf-report-body ul, .pdf-report-body ol { margin: 8px 0; padding-left: 20px; }
         .pdf-report-body li { margin: 4px 0; }
         .pdf-report-body strong { font-weight: bold; }
@@ -143,13 +157,13 @@ export async function generatePDF(report, confidence) {
         .pdf-report-body th, .pdf-report-body td { border: 1px solid #e8e8f0; padding: 8px; text-align: left; font-size: 11px; }
         .pdf-report-body th { background: #f8f8fc; font-weight: bold; }
       </style>
+      ${htmlContent}
     `;
-    reportBody.innerHTML = styleContent + reportBody.innerHTML;
 
     bodySection.appendChild(reportBody);
     container.appendChild(bodySection);
 
-    // Add footer
+    // Footer (only rendered on the last page via canvas split below)
     const footer = document.createElement("div");
     footer.style.marginTop = "30px";
     footer.style.paddingTop = "20px";
@@ -166,7 +180,7 @@ export async function generatePDF(report, confidence) {
       });
     container.appendChild(footer);
 
-    // Convert to canvas and generate PDF
+    // ── Render to a single full-height canvas ───────────────────────────────
     const canvas = await html2canvas(container, {
       scale: 2,
       useCORS: true,
@@ -174,34 +188,72 @@ export async function generatePDF(report, confidence) {
       backgroundColor: "#ffffff",
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    document.body.removeChild(container);
+
+    // ── Slice the canvas into A4 pages with smart cut points ───────────────
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
 
-    const imgWidth = 210; // A4 width in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
+    const PAGE_WIDTH_MM = 210;
+    const PAGE_HEIGHT_MM = 297;
+    const USABLE_HEIGHT_MM = PAGE_HEIGHT_MM - 8; // small bottom buffer before looking for a cut
+    const TOP_MARGIN_MM = 10; // ← blank breathing room at top of every new page
 
-    // Add pages as needed
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= 297; // A4 height in mm
+    const pxPerMM = canvas.width / PAGE_WIDTH_MM;
+    const pageHeightPx = USABLE_HEIGHT_MM * pxPerMM;
+    const topMarginPx = TOP_MARGIN_MM * pxPerMM;
 
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= 297;
+    let startY = 0;
+    let pageIndex = 0;
+
+    while (startY < canvas.height) {
+      if (pageIndex > 0) pdf.addPage();
+
+      const rawEndY = startY + pageHeightPx;
+      const endY =
+        rawEndY < canvas.height
+          ? findSafeCutPoint(canvas, startY, rawEndY)
+          : canvas.height;
+
+      const sliceH = endY - startY;
+
+      // Pages after the first get a blank top margin so content
+      // doesn't crash straight into the top edge.
+      const topPad = pageIndex === 0 ? 0 : topMarginPx;
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = sliceH + topPad; // ← taller canvas to fit the margin
+
+      const ctx = pageCanvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+      // Draw the slice shifted down by topPad so the margin is blank white
+      ctx.drawImage(
+        canvas,
+        0,
+        startY,
+        canvas.width,
+        sliceH, // source rect
+        0,
+        topPad,
+        canvas.width,
+        sliceH, // dest — offset by the top margin
+      );
+
+      const imgData = pageCanvas.toDataURL("image/png");
+      const sliceHeightMM = (sliceH + topPad) / pxPerMM;
+
+      pdf.addImage(imgData, "PNG", 0, 0, PAGE_WIDTH_MM, sliceHeightMM);
+
+      startY = endY;
+      pageIndex++;
     }
 
-    // Download the PDF
     pdf.save("scoutiq_report.pdf");
-
-    // Clean up
-    document.body.removeChild(container);
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw error;

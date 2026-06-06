@@ -1,4 +1,0 @@
-{
-  "MONGODB_CLUSTER_CONNECTION": "mongodb+srv://admin_db_user:nnQlu0Stwiw1NMks@scoutiqcluster.s9atdbp.mongodb.net/?appName=ScoutIQCluster",
-  "GCP_PROJECT_ID": "aideplus"
-}
