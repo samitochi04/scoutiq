@@ -36,9 +36,9 @@ COPY --from=builder /app/build/dist ./app/dist
 # Copy .env files for reference (not used in container, will be set via Coolify)
 COPY .env.example .
 
-# Port
+# Port (can be overridden by Coolify)
 ENV PORT=8080
 EXPOSE 8080
 
-# Run FastAPI with Uvicorn
-CMD ["python", "-m", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run FastAPI with Uvicorn, using PORT environment variable
+CMD ["sh", "-c", "python -m uvicorn api:app --host 0.0.0.0 --port ${PORT}"]
