@@ -22,6 +22,8 @@ import os
 import json
 import logging
 import uuid
+import base64
+import tempfile
 from pathlib import Path
 from typing import AsyncGenerator
 
@@ -42,13 +44,40 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ── Credentials ───────────────────────────────────────────────────────────────
-_creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
-if _creds:
-    _path = Path(_creds)
-    if not _path.is_absolute():
-        _path = ROOT / _creds.lstrip("./\\")
-    if _path.exists():
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(_path)
+# Priority:
+# 1. GCP_SERVICE_ACCOUNT_JSON (base64-encoded) — from Coolify secrets
+# 2. GOOGLE_APPLICATION_CREDENTIALS (file path) — from local .env or direct env var
+# 3. Application Default Credentials (ADC) — if on Google Cloud
+
+_creds_b64 = os.getenv("GCP_SERVICE_ACCOUNT_JSON", "")
+if _creds_b64:
+    # Decode base64 and write to temp file
+    try:
+        creds_json = base64.b64decode(_creds_b64).decode("utf-8")
+        # Write to temp file that persists for container lifetime
+        creds_path = Path("/tmp/gcp_credentials.json")
+        creds_path.write_text(creds_json)
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(creds_path)
+        logger.info("✅ GCP credentials loaded from GCP_SERVICE_ACCOUNT_JSON")
+    except Exception as e:
+        logger.error(f"❌ Failed to decode GCP_SERVICE_ACCOUNT_JSON: {e}")
+        raise RuntimeError("Invalid GCP_SERVICE_ACCOUNT_JSON: must be valid base64")
+else:
+    # Fall back to file path (local dev)
+    _creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+    if _creds:
+        _path = Path(_creds)
+        if not _path.is_absolute():
+            _path = ROOT / _creds.lstrip("./\\")
+        if _path.exists():
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(_path)
+            logger.info(f"✅ GCP credentials loaded from file: {_path}")
+        else:
+            logger.warning(f"⚠️  GCP credentials file not found: {_path}")
+    else:
+        logger.info(
+            "⏳ No GOOGLE_APPLICATION_CREDENTIALS set — using Application Default Credentials"
+        )
 
 GCP_PROJECT = os.getenv("GCP_PROJECT_ID", "aideplus")
 GCP_REGION = os.getenv("GCP_REGION", "us-central1")
