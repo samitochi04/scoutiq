@@ -1,14 +1,21 @@
 # ── Build stage: React frontend ──────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
-WORKDIR /app/build
+WORKDIR /app
 
-# Copy React app files
-COPY app/package*.json ./
-RUN npm ci
-
+# Copy entire app directory first
 COPY app/ .
+
+# Install dependencies
+RUN npm ci --verbose
+
+# Build for production
+ENV NODE_ENV=production
 RUN npm run build
+
+# Verify build succeeded
+RUN test -d dist || (echo "❌ React build failed - dist/ not found" && exit 1)
+RUN ls -la dist/ || echo "Dist contents:"
 
 # ── Runtime stage: Python API ────────────────────────────────────────────────
 FROM python:3.11-slim
@@ -31,7 +38,7 @@ COPY transform/ ./transform/
 COPY data/ ./data/
 
 # Copy built React frontend from builder stage
-COPY --from=builder /app/build/dist ./app/dist
+COPY --from=builder /app/dist ./app/dist
 
 # Copy .env files for reference (not used in container, will be set via Coolify)
 COPY .env.example .
