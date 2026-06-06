@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  scoutiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scoutiq-app
+    ports:
+      - "8080:8080"
+    environment:
+      # ── MongoDB ───────────────────────────────────────────────
+      MONGODB_CLUSTER_USERNAME: ${MONGODB_CLUSTER_USERNAME}
+      MONGODB_CLUSTER_PASSWORD: ${MONGODB_CLUSTER_PASSWORD}
+      MONGODB_CLUSTER_CONNECTION: ${MONGODB_CLUSTER_CONNECTION}
+
+      # ── Google Cloud ──────────────────────────────────────────
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+      GCP_REGION: ${GCP_REGION}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
+
+      # ── Observability (optional) ──────────────────────────────
+      ARIZE_API_KEY: ${ARIZE_API_KEY}
+      ARIZE_SPACE_ID: ${ARIZE_SPACE_ID}
+
+      # ── APIs ──────────────────────────────────────────────────
+      FOOTBALL_DATA_API_KEY: ${FOOTBALL_DATA_API_KEY}
+
+      # ── Server ────────────────────────────────────────────────
+      PORT: 8080
+
+    # Mount .env file for local development (optional)
+    env_file:
+      - .env
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
