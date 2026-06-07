@@ -1,3 +1,7 @@
+# ── Google ADK ────────────────────────────────────────────────
+google-adk>=1.0.0
+google-genai>=1.0.0
+
 # ── Data ingestion ────────────────────────────────────────────
 statsbombpy>=1.0.3
 pandas>=2.0.0
@@ -15,10 +19,7 @@ mcp>=1.0.0
 fastapi>=0.111.0
 uvicorn[standard]>=0.29.0
 
-# ── Observability (Arize Phoenix) ─────────────────────────────
-arize-phoenix>=4.0.0
-opentelemetry-sdk>=1.24.0
-opentelemetry-exporter-otlp>=1.24.0
-
-# ── Frontend ──────────────────────────────────────────────────
-streamlit>=1.35.0
+# ── Observability ─────────────────────────────────────────────
+# arize-phoenix>=4.0.0
+# opentelemetry-sdk>=1.24.0
+# opentelemetry-exporter-otlp>=1.24.0

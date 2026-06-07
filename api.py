@@ -23,7 +23,6 @@ import json
 import logging
 import uuid
 import base64
-import tempfile
 from pathlib import Path
 from typing import AsyncGenerator
 

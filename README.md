@@ -1,17 +1,7 @@
 # ScoutIQ ⚽
-**AI Agent for Real-Time Football Scouting & Match Intelligence — 2026 World Cup**
-
-> [Google Cloud Rapid Agent Hackathon](https://rapid-agent.devpost.com) — **MongoDB Track**
+**AI Agent for Real-Time Football Scouting & Match Intelligence 2026 World Cup**
 
 ScoutIQ is a multi-step AI scouting agent that *acts*, not just answers. Given a query like *"Who plays like Iniesta in the 2026 World Cup?"* or *"Compare Mbappé's 2026 form to his 2018 peak"*, the agent executes a full reasoning loop: queries MongoDB Atlas Vector Search for historical player data, grounds itself in live 2026 match data, and returns a structured scouting report with a confidence score.
-
-**Hosted app:** *(Cloud Run URL — added at submission)*
-**Demo video:** *(YouTube — added at submission)*
-
-### Links
-- Hackathon: https://rapid-agent.devpost.com
-- ScoutIQ MongoDB Atlas: https://cloud.mongodb.com/v2/6a1d7d2c514928562d58f94f#/overview
-- ScoutIQ GCP project: https://console.cloud.google.com/agent-platform/overview?project=aideplus
 
 ---
 
@@ -25,7 +15,7 @@ ScoutIQ is a multi-step AI scouting agent that *acts*, not just answers. Given a
 ### Installation
 
 ```bash
-git clone https://github.com/<your-handle>/scoutiq.git
+git clone https://github.com/samitochi04/scoutiq.git
 cd scoutiq
 python -m venv venv
 # Windows:
@@ -36,6 +26,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 # Edit .env with your MongoDB and GCP credentials
+```
+**OR**
+
+```bash
+# Using Docker
+docker-compose up -d
 ```
 
 ### Run the data pipeline
@@ -63,12 +59,8 @@ python ingestion/ingest_live.py
 cd mcp_server
 uvicorn server:app --host 0.0.0.0 --port 8080
 ```
-
-### Run the web app (local)
-
-```bash
-streamlit run app/app.py
-```
+**Note:**
+The project uses Google Agent Builder and MCP tools, so you'll need to configure a Google Cloud account and deploy the MCP server to Cloud Run.
 
 ---
 
@@ -78,10 +70,9 @@ streamlit run app/app.py
 |---|---|
 | LLM / Agent | Gemini 2.5 Flash via Google Cloud Agent Builder |
 | Embeddings | Vertex AI `text-embedding-004` (768 dims) |
-| Database | MongoDB Atlas — Vector Search + 4 collections |
-| MCP Server | Python + FastAPI — 4 tools |
-| Observability | Arize Phoenix — traces + groundedness score |
-| Frontend | Streamlit on Google Cloud Run |
+| Database | MongoDB Atlas - Vector Search + 4 collections |
+| MCP Server | Python + FastAPI - 4 tools |
+| Frontend | React + Vite |
 
 ---
 
@@ -89,11 +80,10 @@ streamlit run app/app.py
 
 ```
 scoutiq/
-├── LICENSE                      MIT — OSI-approved, commercial use allowed
+├── LICENSE                      MIT — OSI-approved,
 ├── README.md                    This file
-├── plan.md                      Full 11-day build plan (data science detail)
 ├── requirements.txt
-├── .env.example                 Template — copy to .env, never commit .env
+├── .env.example                 credentials
 │
 ├── data/                        StatsBomb match lists (cached locally)
 │   ├── 3.json                   2018 WC match metadata
@@ -105,21 +95,26 @@ scoutiq/
 │   └── ingest_live.py           Live 2026 match ingestion (Day 5)
 │
 ├── transform/                   Schema transformation + MongoDB upload
-│   └── transform.py             Aggregates to tournament profiles, upserts (Day 2)
+│   └── transform.py             Aggregates to tournament profiles
 │
 ├── embed/                       Vertex AI embedding generation
-│   └── embed.py                 Embeds player tournament profiles (Day 4)
+│   └── embed.py                 Embeds player tournament profiles
 │
-├── mcp_server/                  MCP server — tools exposed to Agent Builder
+├── mcp_server/                  MCP server - tools exposed to Agent Builder
 │   ├── server.py                search_players, get_player_profile,
 │   │                            get_match_timeline, get_team_players
-│   └── Dockerfile
+│   
 │
 ├── agent/
-│   └── system_prompt.txt        Gemini system prompt (Day 7)
+│   └── agent.py                 AI Agent
 │
-└── app/                         Streamlit web UI
-    ├── app.py                   Main frontend (Day 9)
+├── api.py                       backend (for frontend)
+│
+├── Dockerfile
+├── docker-compose.yml 
+│
+└── app/                         web UI
+    ├── vite.config.js           Main frontend
     └── Dockerfile
 ```
 
@@ -134,7 +129,7 @@ scoutiq/
 | `players_master` | 1 doc per player (lifetime) | Career reference, `active_at_2026_wc` |
 | `matches` | 1 doc per match | Match metadata |
 
-See [plan.md](plan.md) for full schema definitions, per-90 normalisation logic, and embedding text strategy.
+See [project.md](project.md) for full schema definitions, per-90 normalisation logic, and embedding text strategy.
 
 ---
 
@@ -145,55 +140,6 @@ See [plan.md](plan.md) for full schema definitions, per-90 normalisation logic, 
 | 2018, 2022 | [StatsBomb open data](https://github.com/statsbomb/open-data) | `full` | shots, passes, dribbles, pressures, tackles |
 | 1998–2014 | [Kaggle FIFA World Cup](https://www.kaggle.com/datasets/abecklas/fifa-world-cup) | `summary` | goals, assists, matches, position |
 | 2026 (live) | StatsBomb live + football-data.org fallback | `live` | Updated within 48h of each match |
-
----
-
-## Hackathon Compliance
-
-> Rules summary — always check [rules.txt](rules.txt) for the authoritative text.
-
-### Track & prize
-- Submitted to the **MongoDB track** only.
-- One project = one track. *"Each Submission must be unique and substantially different"* — the same project cannot be entered in multiple tracks.
-- Deadline: **June 11, 2026 at 2:00 PM PT**
-
-### Required technologies
-- [x] Google Cloud **Agent Builder** — orchestration
-- [x] **Gemini** — the AI model
-- [x] **MongoDB MCP server** — partner integration (mandatory for MongoDB track)
-- [x] Hosted on **Google Cloud Run** — public URL required for judging
-
-### AI tools — strict rule
-> *"Projects are required to utilize Google Cloud artificial intelligence tools... All other artificial intelligence tools are not permitted."*
-
-**Only Google Cloud AI is used:**
-- Gemini 2.5 Flash (LLM)
-- Vertex AI `text-embedding-004` (embeddings)
-- Agent Builder built-in Google Search grounding
-
-**Not used:** OpenAI, Anthropic, Cohere, Hugging Face inference, or any non-Google AI service. Violating this rule = disqualification.
-
-### Competing services rule
-> *"The use of other services that directly compete with... the Partner whose track you've selected is not permitted."*
-
-MongoDB track → no competing databases (Firebase, DynamoDB, PostgreSQL, etc.).
-**GitHub is permitted** — GitHub competes with GitLab (a different partner track), not with MongoDB.
-
-### Third-party data & APIs
-- **StatsBomb open data** — licensed under [StatsBomb Open Data Agreement](https://github.com/statsbomb/open-data/blob/master/LICENSE.pdf)
-- **Kaggle FIFA dataset** — CC0 public domain
-- **football-data.org** — free tier, non-commercial license
-- **Arize Phoenix** — Arize is a listed partner; their SDK is permitted in any track
-
-### Open source requirement
-Repository must be public with a detectable OSI-approved license visible in the GitHub About section. This repo uses **MIT** — commercial use permitted, as required by the rules.
-
-### Submission checklist (before June 11)
-- [ ] Hosted URL on Google Cloud Run
-- [ ] Public GitHub repo — MIT license visible in About section
-- [ ] Demo video ≤ 3 min — YouTube or Vimeo, in English
-- [ ] Devpost form complete — MongoDB track selected
-- [ ] Submit ≥ 2 hours before deadline
 
 ---
 
