@@ -54,7 +54,7 @@ const PROMPT_CARDS = [
     ),
   },
   {
-    text: "Waht is France's lineup for 2026",
+    text: "What's France's lineup for 2026",
     icon: (
       <svg
         viewBox="0 0 24 24"
