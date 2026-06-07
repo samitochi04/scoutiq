@@ -71,7 +71,7 @@ The project uses Google Agent Builder and MCP tools, so you'll need to configure
 | LLM / Agent | Gemini 2.5 Flash via Google Cloud Agent Builder |
 | Embeddings | Vertex AI `text-embedding-004` (768 dims) |
 | Database | MongoDB Atlas - Vector Search + 4 collections |
-| MCP Server | Python + FastAPI - 4 tools |
+| MCP Server | Python (Pymongo) + FastAPI - 4 tools |
 | Frontend | React + Vite |
 
 ---
