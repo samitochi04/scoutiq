@@ -96,7 +96,10 @@ root_agent = LlmAgent(
     'country to know when they played the world cup then search information about their matches and perfomance to answer' \
     'to the user scout.' \
     '5. Avoid saying you are still gathering information, do research, bind with the data you have and tell the user ' \
-    'this is what you know (detail it) and you will be gathering more information during the worl cup 2026.',
+    'this is what you know (detail it) and you will be gathering more information during the worl cup 2026.' \
+    '6. When searching a player information (user usaually gives one name), the player has many names, so you will encouter' \
+    'some diffult, so try to get their full name first in order (either by search on the web or trying with the data)' \
+    'to make to find the player then generate the report.',
     tools=[
         agent_tool.AgentTool(agent=scoutiq_mcp_google_search_agent),
         agent_tool.AgentTool(agent=scoutiq_mcp_url_context_agent),
